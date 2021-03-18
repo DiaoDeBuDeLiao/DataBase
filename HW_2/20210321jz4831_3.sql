@@ -51,33 +51,37 @@ WHERE f.SSN NOT IN (
                     );
 
 # 5
+
 SELECT *
-FROM(
+FROM (
     SELECT e.Student_SSN
     FROM Enrollment e, Class cls
     WHERE e.Class_no = cls.Class_no
     AND cls.D_code = 'INFS'
-    AND cls.C_no = 614
-    )
-WHERE Student_SSN IN (
-    SELECT e.Student_SSN
-    FROM Enrollment e, Class cls, Prereq p
-    WHERE e.Class_no = cls.Class_no
-    AND cls.C_no = p.P_no
-    AND cls.D_code = p.P_code
-    AND p.C_no = 614
-    AND p.D_code = 'INFS'
+    AND cls.C_no = 614) enroll
+WHERE enroll.Student_SSN NOT IN(
+    SELECT req.SSN
+    FROM(
+        SELECT DISTINCT s.SSN, c.D_code, c.C_no
+        FROM Student s, Prereq p, Course c
+        WHERE p.C_no = 614
+        AND p.D_code = 'INFS'
+        AND p.P_code = c.D_code
+        AND p.P_no = c.C_no
+    ) req
+    LEFT JOIN(
+        SELECT t.Student_SSN, p.P_code, p.P_no
+        FROM Transcript t, Prereq p
+        WHERE t.C_no = p.P_no
+        AND t.D_code = p.P_code
+        AND p.C_no = 614
+        AND p.D_code = 'INFS'
+    ) take
+    ON req.SSN = take.Student_SSN
+    AND req.D_code = take.P_code
+    AND req.C_no = take.P_no
+    WHERE take.Student_SSN IS NULL
+    AND take.P_code IS NULL
+    AND take.P_no IS NULL
+
 );
-
-SELECT e.Student_SSN
-    FROM Enrollment e, Class cls
-    WHERE e.Class_no = cls.Class_no
-    AND cls.D_code = 'INFS'
-    AND cls.C_no = 614;
-
-SELECT t.Student_SSN
-    FROM Transcript t, Prereq p
-    WHERE t.C_no = p.P_no
-    AND t.D_code = p.P_code
-    AND p.C_no = 614
-    AND p.D_code = 'INFS';
