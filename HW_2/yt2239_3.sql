@@ -115,13 +115,13 @@ SELECT
   fa.F_Name
 FROM
   faculty fa
-  JOIN class cls ON fa.SSN = cls.Instructor_SSN
+  LEFT JOIN class cls ON fa.SSN = cls.Instructor_SSN
 GROUP BY
   fa.SSN
 HAVING
-  COUNT(*) >= 2
+  COUNT(cls.class_no) >= 2
 ORDER BY
-  COUNT(*) DESC;
+  COUNT(cls.class_no) DESC;
 #2.9
 SELECT
   s.SSN,
@@ -164,7 +164,7 @@ HAVING
     FROM
       class
     WHERE
-      Instructor_SSN = (
+      Instructor_SSN in (
         SELECT
           SSN
         from
