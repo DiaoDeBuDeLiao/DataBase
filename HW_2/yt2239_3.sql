@@ -54,32 +54,34 @@ SELECT
 FROM
   student s
   join enrollment e on s.SSN = e.Student_SSN
-  join transcript t on s.SSN = t.Student_SSN
   join class cls on cls.Class_no = e.Class_no
 WHERE
   cls.D_code = 'INFS'
   AND cls.C_no = 614
-  AND (t.D_code, t.C_no) in (
+  AND not EXISTS (
     select
-      p.P_code,
-      p.P_no
+      *
     from
-      prereq p
+      (
+        select
+          *
+        from
+          prereq p
+        where
+          p.D_code = 'INFS'
+          AND p.C_no = 614
+      ) as temp
     where
-      p.D_code = 'INFS'
-      AND p.C_no = 614
-  )
-GROUP BY
-  s.SSN
-HAVING
-  count(s.SSN) = (
-    select
-      count(*)
-    from
-      prereq p
-    where
-      p.D_code = 'INFS'
-      AND p.C_no = 614
+      not EXISTS (
+        select
+          *
+        from
+          transcript t
+        where
+          t.Student_SSN = s.SSN
+          AND t.D_code = temp.P_code
+          AND t.C_no = temp.P_no
+      )
   );
 #2.6
 SELECT
