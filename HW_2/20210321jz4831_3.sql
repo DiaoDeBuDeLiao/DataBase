@@ -85,3 +85,5 @@ WHERE enroll.Student_SSN NOT IN(
     AND take.P_no IS NULL
 
 );
+
+# 6
